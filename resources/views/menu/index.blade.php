@@ -12,7 +12,7 @@
         <div class="container border bg-base-300 rounded-md p-4 mb-4 max-w-md mx-2 relative">
             <div class="mb-4">
                 <label for="categoryFilter" class="block mb-1">Filter by Category:</label>
-                <select x-model="selectedCategory" id="categoryFilter" name="categoryFilter" class="mt-1 p-2 border rounded-md w-full bg-white">
+                <select x-model="selectedCategory" id="categoryFilter" name="categoryFilter" class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-full ">
                     <option value="">All Categories</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category->id }}">{{ $category->name }}</option>
