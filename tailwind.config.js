@@ -28,7 +28,7 @@ module.exports = {
      [require("daisyui")],
 
     daisyui: {
-        themes: ["light", "dark", "cupcake","business"],
+        themes: ["cyberpunk", "dark", "cupcake","business"],
     },
 }
 // export default {

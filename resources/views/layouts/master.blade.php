@@ -4,7 +4,7 @@
 
 
 <!DOCTYPE html>
-<html data-theme="business" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html data-theme="cyberpunk" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="utf-8">
@@ -18,7 +18,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
-<div class="container">
+
+<div class="container bg-base-100">
     @yield('content')
 </div>
 </body>
