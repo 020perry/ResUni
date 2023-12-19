@@ -41,6 +41,15 @@
             <span class="text-sm text-gray-500">Check if the menu item is available</span>
         </div>
 
+        <div class="mb-4">
+            <label for="category_ids" class="block text-sm font-medium text-gray-700 mb-1">Categories:</label>
+            <select name="category_ids[]" id="category_ids" multiple class="p-2 border rounded-md w-full">
+                @foreach($categories as $category)
+                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
         <button type="submit" class="bg-blue-500 text-white p-2 rounded-md cursor-pointer">Create Menu Item</button>
     </form>
 @endsection
