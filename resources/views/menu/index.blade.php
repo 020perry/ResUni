@@ -7,88 +7,92 @@
 @section('content')
     <h1 class="text-3xl font-bold mb-4 text-center">Menu</h1>
 
-
-    <div x-data="{ selectedCategory: '' }" class="flex flex-wrap justify-center mb-4">
+    <div x-data="menuController()" class="flex flex-wrap justify-center mb-4">
+        <!-- Categories Filter -->
         <div class="container border bg-base-300 rounded-md p-4 mb-4 max-w-md mx-2 relative">
             <div class="mb-4">
                 <label for="categoryFilter" class="block mb-1">Filter by Category:</label>
-                <select x-model="selectedCategory" id="categoryFilter" name="categoryFilter" class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-full ">
+                <select x-model="selectedCategory" id="categoryFilter" class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-full ">
                     <option value="">All Categories</option>
-                    @foreach ($categories as $category)
-                        <option value="{{ $category->id }}">{{ $category->name }}</option>
-                    @endforeach
+                    <template x-for="category in categories" :key="category.id">
+                        <option x-bind:value="category.id" x-text="category.name"></option>
+                    </template>
                 </select>
             </div>
 
+            <!-- Menu Items Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                @foreach ($menuItems as $menuItem)
-                    <div x-show="selectedCategory === '' || '{{ implode(',', $menuItem->categories->pluck('id')->toArray()) }}'.split(',').includes(selectedCategory)"
-                         class="menu-item-container  bg-base-200 rounded-md shadow-md transition duration-300 transform hover:shadow-2xl flex flex-col">
-                        <div class="mb-4">
-                            <figure>
-                                <img src="{{ asset('storage/' . $menuItem->image) }}" alt="{{ $menuItem->name }}" class="w-full h-32 object-cover rounded-t-md">
-                            </figure>
-                        </div>
-                        <h2 class="card-title p-1">{{ $menuItem->name }}</h2>
-                        <p class="p-1">{{ $menuItem->price }}</p>
-                        <p class="p-1">{{ $menuItem->description }}</p>
+                <template x-for="menuItem in filteredMenuItems" :key="menuItem.id">
+                    <div class="menu-item-container bg-base-200 rounded-md shadow-md transition duration-300 transform hover:shadow-2xl flex flex-col">
+                        <!-- Image Placeholder -->
+                        <figure>
+                            <img x-bind:src="menuItem.image" alt="" class="w-full h-32 object-cover rounded-t-md">
+                        </figure>
+                        <h2 class="card-title p-1" x-text="menuItem.name"></h2>
+                        <p class="p-1" x-text="menuItem.price"></p>
+                        <p class="p-1" x-text="menuItem.description"></p>
                     </div>
-                @endforeach
+                </template>
             </div>
-
-
         </div>
 
+        <!-- Actions Section -->
         <div class="max-w-md mx-2">
+            <!-- Existing Actions (Add, Edit, Delete) -->
+            <!-- ... Your existing action buttons and forms ... -->
+
+            <!-- QR Code Section -->
             <div class="border rounded-md p-4 bg-base-300 mb-4">
-                <h2 class="mb-4 ">Actions</h2>
-
-                <!-- Add Menu Item -->
-                <div class="mb-2">
-                    <a href="{{ route('menu.create') }}" class="btn">Add Menu Item</a>
-                </div>
-
-                <!-- Edit Menu Item -->
-                <div class="mb-2">
-                    <a href="{{ route('menu.edit', $menuItem->id) }}" class="btn">Edit Menu Item</a>
-                </div>
-
-                <!-- Delete Menu Item -->
-                <div>
-                    <form action="{{ route('menu.destroy', $menuItem->id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this menu item?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn">Delete Menu Item</button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- QR Code -->
-            <div class="border rounded-md p-4 bg-base-300 mb-4">
-                <h2 class=" mb-4 ">QR Code</h2>
-
                 <!-- Generate QR Code -->
-                <div class="mb-2">
-                    <button class="btn">Generate QR Code</button>
-                </div>
+                <button class="btn" @click="generateQrCode(menu.id)">Generate QR Code</button>
 
-                <!-- Placeholder for displaying the QR code image -->
-                <div>
-                    <img src="{{ asset('path-to-placeholder-image') }}" alt="QR Code" class="w-full h-32 object-cover rounded-md mb-2">
+                <!-- Display QR Code -->
+                <div x-show="qrCode">
+                    <img :src="qrCode" alt="QR Code" class="w-full h-32 object-cover rounded-md mb-2">
                 </div>
             </div>
         </div>
-
-
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2" defer></script>
     <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('menuController', () => ({
+        function menuController() {
+            return {
                 selectedCategory: '',
-            }));
-        });
-    </script>
+                categories: [],
+                menuItems: [],
+                qrCode: '',
 
+                init() {
+                    this.fetchCategories();
+                    this.fetchMenuItems();
+                },
+
+                fetchCategories() {
+                    fetch('/categories')
+                        .then(response => response.json())
+                        .then(data => this.categories = data);
+                },
+
+                fetchMenuItems() {
+                    fetch('/menus')
+                        .then(response => response.json())
+                        .then(data => this.menuItems = data);
+                },
+
+                get filteredMenuItems() {
+                    return this.menuItems.filter(item =>
+                        this.selectedCategory === '' || item.categories.includes(parseInt(this.selectedCategory))
+                    );
+                },
+
+                generateQrCode(menuId) {
+                    fetch(`/generate-qr-code/${menuId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            this.qrCode = data.qrCodeImage;
+                        });
+                }
+            };
+        }
+    </script>
 @endsection
